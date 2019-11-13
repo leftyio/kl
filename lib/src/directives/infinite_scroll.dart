@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:angular/angular.dart';
+import 'package:rxdart/rxdart.dart';
 import "package:rxdart/transformers.dart";
 
 @Directive(selector: 'kl-infinite-scroll, [kl-infinite-scroll]')
@@ -68,15 +69,15 @@ class KlInfiniteScroll implements OnDestroy, OnInit {
 
   void _setScrollSubscription() {
     _scrollSubscription?.cancel();
-    final transformer =
-        new DebounceStreamTransformer<Event>(const Duration(milliseconds: 300));
 
     if (_source == null) {
-      _scrollSubscription =
-          window.onScroll.transform(transformer).listen(_onScroll);
+      _scrollSubscription = Observable(window.onScroll)
+          .debounceTime(const Duration(milliseconds: 300))
+          .listen(_onScroll);
     } else {
-      _scrollSubscription =
-          _source.onScroll.transform(transformer).listen(_onScroll);
+      _scrollSubscription = Observable(_source.onScroll)
+          .debounceTime(const Duration(milliseconds: 300))
+          .listen(_onScroll);
     }
   }
 
